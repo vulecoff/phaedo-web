@@ -7,7 +7,9 @@ import { experimental } from "../theme/theme";
 import { useState } from "react";
 
 export function Layout() {
-    const [sideBarHide, setSideBarHide] = useState(true);
+    const mediaQuery = matchMedia("(max-width: 640px)");
+    // setting initial state is all we need
+    const [sideBarHide, setSideBarHide] = useState(mediaQuery.matches);
 
     const layoutStyles = ["h-screen", experimental.colors.zen.bg, experimental.fonts.zillaSlab];
 

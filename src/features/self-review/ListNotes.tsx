@@ -39,7 +39,7 @@ export function ListNotes() {
             })
             .catch((err) => console.log(err));
     }, []);
-    const styles = ["p-3 min-h-full max-w-2xl mx-auto", "flex flex-col"];
+    const styles = ["p-4 min-h-full max-w-2xl mx-auto", "flex flex-col"];
     return (
         <>
             <div className={styles.join(" ")}>
