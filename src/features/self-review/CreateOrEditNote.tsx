@@ -4,7 +4,7 @@ import { Button } from "../../components/button/Button";
 import { api } from "../../lib/api-client";
 import { mockServer } from "../../lib/mock-server";
 import { createNote, deleteNote, getNote, updateNote } from "./mocks";
-import { redirect, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 // TODO HOW TO SHARE BETWEEN A BUNCH OF COMPONENTS
 mockServer.registerMockObjects([createNote, deleteNote, updateNote]);
