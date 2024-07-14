@@ -5,13 +5,14 @@ import { CreateOrEditNote } from "../features/self-review/CreateOrEditNote";
 import "../assets/zilla-slab-font.css";
 import { experimental } from "../theme/theme";
 import { useState } from "react";
+import { MLTest } from "../features/playground/MLTest";
 
 export function Layout() {
     const mediaQuery = matchMedia("(max-width: 640px)");
     // setting initial state is all we need
     const [sideBarHide, setSideBarHide] = useState(mediaQuery.matches);
 
-    const layoutStyles = ["h-screen", experimental.colors.zen.bg, experimental.fonts.zillaSlab];
+    const layoutStyles = ["h-screen", experimental.colors.zen60.bg, experimental.fonts.zillaSlab];
 
     // TODO: deduplicate the sizing, but avoid dynamic classes for tailwind
     const mainStyles = [
@@ -30,6 +31,7 @@ export function Layout() {
                     <Route path="/notes" element={<ListNotes />}></Route>
                     <Route path="/notes/:id/edit" element={<CreateOrEditNote />}></Route>
                     <Route path="/notes/create" element={<CreateOrEditNote />}></Route>
+                    <Route path="/playground" element={<MLTest />}></Route>
                 </Routes>
             </main>
         </div>

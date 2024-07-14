@@ -4,5 +4,8 @@ export default {
     theme: {
         extend: {},
     },
-    plugins: [],
+    plugins: [
+        // require("@tailwindcss/typography") // too big margins
+        // https://github.com/tailwindlabs/tailwindcss-typography/blob/master/src/styles.js
+    ],
 };

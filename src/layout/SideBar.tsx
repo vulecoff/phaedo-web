@@ -24,6 +24,11 @@ export function SideBar(props: {
         "-translate-x-[12rem] data-[hide=false]:translate-x-0",
         "transition-all",
     ];
+    const sideBarRoutes = [
+        ["Home", "/"],
+        ["Notes", "/notes"],
+        ["Playground", "/playground"],
+    ];
     return (
         <>
             <div data-hide={sideBarHide} className={sideBarStyles.join(" ").trim()}>
@@ -36,12 +41,20 @@ export function SideBar(props: {
                     <img src={burgerIcon} className="size-4" />
                 </button>
                 <nav data-hide={sideBarHide} className={navStyles.join(" ")}>
-                    <NavLink to="/" className="uppercase">
-                        Home
-                    </NavLink>
-                    <NavLink to="/notes" className="uppercase">
-                        Notes
-                    </NavLink>
+                    {sideBarRoutes.map((item, idx) => (
+                        <NavLink
+                            key={idx}
+                            to={item[1]}
+                            className={[
+                                "uppercase py-[2px] relative",
+                                "after:inline-block after:h-[2px] after:w-full after:absolute after:scale-x-0 after:left-0 after:bottom-[2px]",
+                                "hover:after:bg-gray-700 hover:after:scale-x-100 after:transition",
+                                "after:origin-left",
+                            ].join(" ")}
+                        >
+                            {item[0]}
+                        </NavLink>
+                    ))}
                 </nav>
             </div>
             <div

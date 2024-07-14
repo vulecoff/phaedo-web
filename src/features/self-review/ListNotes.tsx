@@ -4,6 +4,7 @@ import { mockServer } from "../../lib/mock-server";
 import { getNote } from "./mocks";
 import { Link } from "react-router-dom";
 import addIcon from "../../../src/assets/add-icon.svg";
+import { SpinnerSquare } from "../../components/spinner/SpinnerSquare";
 
 mockServer.registerMockObjects([getNote]);
 
@@ -12,8 +13,10 @@ function NoteItem(props: { id: string; title: string }) {
     const styles = [
         "flex flex-row justify-between items-center gap-4",
         "p-3",
-        "border-2 border-t-0 first:border-t-2 border-black",
+        "border-b-2 border-black",
         "cursor-pointer",
+        "hover:translate-x-1 hover:shadow",
+        "transition-all",
     ];
     return (
         <>
@@ -33,8 +36,12 @@ export function ListNotes() {
         api.mock(300)
             .get(getNote.url, {})
             .then((data) => {
+                data = data as Array<any>;
                 console.log(data);
-                setNotes(data as Array<any>);
+                data.sort((a: any, b: any) => {
+                    return new Date(b.dateUpdated).getTime() - new Date(a.dateUpdated).getTime();
+                });
+                setNotes(data);
                 setLoadingNotes(false);
             })
             .catch((err) => console.log(err));
@@ -44,7 +51,7 @@ export function ListNotes() {
         <>
             <div className={styles.join(" ")}>
                 {loadingNotes ? (
-                    <div>Shell</div>
+                    <SpinnerSquare className="size-8 mx-auto my-auto" />
                 ) : (
                     <>
                         <Link to="/notes/create">

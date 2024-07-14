@@ -15,9 +15,9 @@ export type ButtonProps = {
 export function Button(props: ButtonProps) {
     const { children, className, disabled, loading, type, variant, ...rest } = props;
     const defaultClassNames = [
-        variant ? colorVariantStyles[variant] : colorVariantStyles.default,
-        ...["text-white", "font-semibold"],
-        ...["p-2", "rounded-lg"],
+        variant ? colorVariantStyles[variant] : colorVariantStyles.default, // SET COLOR OF TEXT AND BG
+        ...["font-semibold"],
+        ...["p-2", "rounded-none"],
         ...["inline-flex", "gap-x-2", "items-center"],
         ...["disabled:pointer-events-none", "disabled:opacity-50"],
     ];

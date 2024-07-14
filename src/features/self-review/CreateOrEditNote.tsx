@@ -27,7 +27,7 @@ export function CreateOrEditNote() {
     useEffect(() => {
         // set loading shell
         if (id) {
-            api.mock(500)
+            api.mock(100)
                 .get(getNote.url, {
                     id: id,
                 })
@@ -44,11 +44,22 @@ export function CreateOrEditNote() {
         }
     }, [id]);
 
-    function handleSave(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-        event.preventDefault();
-        if (!exportHtmlFn) {
-            return;
+    useEffect(() => {
+        function handleCtrlS(event: KeyboardEvent) {
+            if (event.ctrlKey && event.key === "s") {
+                event.preventDefault();
+                console.log("Saving...");
+                save();
+            }
         }
+        window.addEventListener("keydown", handleCtrlS);
+        return () => {
+            window.removeEventListener("keydown", handleCtrlS);
+        };
+    }, [save]);
+
+    // TODO: convert to useCallback()
+    function save() {
         setSaveLoading(true);
         if (!id) {
             api.mock(500)
@@ -77,6 +88,13 @@ export function CreateOrEditNote() {
                 .catch((err) => console.log(err));
         }
     }
+    function handleSave(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+        event.preventDefault();
+        if (!exportHtmlFn) {
+            return;
+        }
+        save();
+    }
 
     function handleDelete(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
         event.preventDefault();
@@ -95,7 +113,7 @@ export function CreateOrEditNote() {
 
     return (
         <div className="container relative p-3 h-full flex flex-col">
-            <div className="flex justify-between border-b border-gray-200 pb-2 mb-2">
+            <div className="flex justify-between border-b border-gray-100 pb-2 mb-2">
                 <input
                     type="text"
                     placeholder="Untitled"
@@ -110,6 +128,8 @@ export function CreateOrEditNote() {
                         onClick={handleSave}
                         disabled={exportHtmlFn === null || disableButtons}
                         loading={saveLoading}
+                        tabIndex={-1}
+                        variant="outline-primary"
                     >
                         Save
                     </Button>
@@ -118,6 +138,7 @@ export function CreateOrEditNote() {
                         disabled={disableButtons}
                         loading={deleteLoading}
                         onClick={handleDelete}
+                        tabIndex={-1}
                     >
                         Delete
                     </Button>

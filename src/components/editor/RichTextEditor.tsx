@@ -6,6 +6,14 @@ import { Paragraph } from "@tiptap/extension-paragraph";
 import Italic from "@tiptap/extension-italic";
 import Underline from "@tiptap/extension-underline";
 import { useEffect } from "react";
+import History from "@tiptap/extension-history";
+import boldIcon from "../../assets/bold-icon.svg";
+import italicIcon from "../../assets/italic-icon.svg";
+import underlineIcon from "../../assets/underline-icon.svg";
+import ListItem from "@tiptap/extension-list-item";
+import BulletList from "@tiptap/extension-bullet-list";
+import OrderedList from "@tiptap/extension-ordered-list";
+import Highlight from "@tiptap/extension-highlight";
 
 export type EditorProps = {
     placeholder?: string;
@@ -13,7 +21,7 @@ export type EditorProps = {
     autofocus?: boolean;
     placeholderWeight?: "default" | "light" | "bold";
     content?: string;
-    onExportFnChange?: Function; // needed to export html on-demand
+    onExportFnChange?: (val: any) => any; // needed to export html on-demand
 };
 
 const placeholderWeightMappings = {
@@ -38,7 +46,27 @@ export function RichTextEditor(props: EditorProps) {
         content,
         onExportFnChange,
     } = props;
-    const tiptapExtensions = [Document, Text, Bold, Italic, Underline, Paragraph];
+    const tiptapExtensions = [
+        Document,
+        Text,
+        Bold,
+        Italic,
+        Underline,
+        Paragraph,
+        History,
+        ListItem,
+        BulletList.configure({
+            HTMLAttributes: {
+                class: "list-disc ps-5",
+            },
+        }),
+        OrderedList.configure({
+            HTMLAttributes: {
+                class: "list-decimal ps-5",
+            },
+        }),
+        Highlight,
+    ];
     const baseStyles = [
         "before:content-[attr(data-placeholder)] before:pointer-events-none",
         "before:absolute before:top-0 before:left-0",
@@ -57,7 +85,7 @@ export function RichTextEditor(props: EditorProps) {
     };
     const tiptapPropsHidePlaceholder = Object.assign({}, tiptapProps); // hide placeholder style
     tiptapPropsHidePlaceholder.attributes = Object.assign({}, tiptapProps.attributes);
-    tiptapPropsHidePlaceholder.attributes.class = classNames + " before:hidden";
+    tiptapPropsHidePlaceholder.attributes.class += " before:hidden";
     const tiptapEditor = useEditor(
         {
             extensions: tiptapExtensions,
@@ -86,10 +114,10 @@ export function RichTextEditor(props: EditorProps) {
         },
         [content]
     );
-    useEffect(() => {
-        // TODO: watch out for tiptap performance with render
-        console.log("tiptapEditor ref changes", new Date());
-    }, [tiptapEditor]);
+    // useEffect(() => {
+    //     // TODO: watch out for tiptap performance with render
+    //     console.log("tiptapEditor ref changes", new Date());
+    // }, [tiptapEditor]);
 
     if (!tiptapEditor) {
         console.warn("Editor initialization incomplete.");
@@ -128,7 +156,7 @@ function Menu({ tiptapEditor }: { tiptapEditor: Editor }) {
                 }
                 onClick={() => tiptapEditor.chain().focus().toggleBold().run()}
             >
-                Bold
+                <img className="size-4" src={boldIcon} />
             </button>
             <button
                 tabIndex={-1}
@@ -138,7 +166,7 @@ function Menu({ tiptapEditor }: { tiptapEditor: Editor }) {
                 }
                 onClick={() => tiptapEditor.chain().focus().toggleItalic().run()}
             >
-                Italic
+                <img className="size-4" src={italicIcon} />
             </button>
             <button
                 tabIndex={-1}
@@ -148,7 +176,7 @@ function Menu({ tiptapEditor }: { tiptapEditor: Editor }) {
                 }
                 onClick={() => tiptapEditor.chain().focus().toggleUnderline().run()}
             >
-                Underline
+                <img className="size-4" src={underlineIcon} />
             </button>
         </div>
     );
