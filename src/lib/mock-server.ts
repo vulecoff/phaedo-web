@@ -1,9 +1,17 @@
+/**
+ * Usage:
+ * 1. Create a MockObject, defining resource url, method, and responseCb, which 'simulates' server behavior
+ * - it can either return data immediately or persist data in dummyDB through database interface
+ * 2. Register MockObject into MockServer
+ * 3. Consume API with apiClient.mock
+ */
+
 import { isMatch, method } from "lodash-es";
 import { HTTPMethod } from "./api-client";
 
 /**
  * Table
- *      row = obj, with its first-level keys as columns
+ *      row obj{id=keypath,...}, with its first-level keys as columns
  */
 export interface TDummyDB {
     find: (table: string, query: Record<any, any>) => Promise<Array<any>>;
@@ -27,10 +35,12 @@ export interface TDummyDB {
 }
 
 // TODO: implement cursor when too many data. Refer to IndexedDB docs
+// TODO: Implement quick-schema for DB object
 class DummyDB implements TDummyDB {
     private db: IDBDatabase | null;
     DB_NAME = "phaedo";
-    TABLES = ["notes"];
+    TABLES = ["notes", "quiz"];
+    CURRENT_VERSION = 2;
 
     constructor() {
         this.db = null;
@@ -47,26 +57,37 @@ class DummyDB implements TDummyDB {
             if (this.db !== null) {
                 return resolve(this);
             }
-            const openrequest = indexedDB.open(this.DB_NAME);
+            const openrequest = indexedDB.open(this.DB_NAME, this.CURRENT_VERSION);
             console.info("initiating a new DB connection...");
+
             openrequest.onerror = function (e) {
                 return reject(new Error(`Failed to initialize database: ${e}`));
-            };
-
-            openrequest.onupgradeneeded = (e) => {
-                console.info("Creating tables for IndexedDB...");
-                this.db = openrequest.result;
-                for (const tableName of this.TABLES) {
-                    this.db!.createObjectStore(tableName, {
-                        keyPath: "id",
-                        autoIncrement: true,
-                    });
-                }
             };
             openrequest.onsuccess = (e) => {
                 console.info("DB connection opened successfully.");
                 this.db = openrequest.result;
+                this.db.onversionchange = (e) => {
+                    this.db!.close();
+                    alert("IndexedDB version upgraded. Outdated connection is closed.");
+                };
                 resolve(this);
+            };
+
+            openrequest.onblocked = (e) => {
+                alert("Another tab with outdated indexedDB is block this tab's DB connection.");
+            };
+            openrequest.onupgradeneeded = (e) => {
+                console.info(`Upgrading from version ${e.oldVersion} to ${e.newVersion}`);
+                this.db = openrequest.result;
+                for (const tableName of this.TABLES) {
+                    if (!this.tableExists(tableName)) {
+                        console.info(`Creating table ${tableName}...`);
+                        this.db!.createObjectStore(tableName, {
+                            keyPath: "id",
+                            autoIncrement: true,
+                        });
+                    }
+                }
             };
         });
     }

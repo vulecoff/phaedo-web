@@ -110,10 +110,11 @@ export async function run(jsonData: string): Promise<any | null> {
 }
 
 /**
- * TODO: test for pageRank. Similiarity function, w/ approx & exact normalization
+ * TODO: test for pageRank (compare with Python's implementation)
+ * Similiarity function, w/ approx & exact normalization
  */
 let useModel: use.UniversalSentenceEncoder | null = null;
-export async function extractKeywords(fullText: string, tops: number = 3) {
+export async function extractiveSummarize(fullText: string, tops: number = 3) {
     // Load the model.
     if (useModel === null) {
         console.log("loading models");

@@ -12,6 +12,7 @@ export function SideBar(props: {
 }) {
     const { sideBarHide, setSideBarHide } = props;
     const sideBarStyles = [
+        // TODO: high-coupling with Layout
         "w-[4rem] data-[hide=false]:w-[12rem]",
         "sm:data-[hide=true]:w-[4rem] sm:data-[hide=false]:w-[12rem]",
         "transition-all",
@@ -27,6 +28,7 @@ export function SideBar(props: {
     const sideBarRoutes = [
         ["Home", "/"],
         ["Notes", "/notes"],
+        ["Quick Review", "/quiz"],
         ["Playground", "/playground"],
     ];
     return (

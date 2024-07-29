@@ -2,7 +2,8 @@ import { experimental } from "../../theme/theme";
 import "./spinner-square.css";
 
 /**
- * Specifies size & position in classname
+ * Specifies size & position in classname.
+ * TODO: size variant
  * @returns
  */
 export function SpinnerSquare({ className }: { className: string }) {

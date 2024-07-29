@@ -1,0 +1,22 @@
+.quiz-card {
+  perspective: 1000px;
+}
+
+.quiz-card-inner {
+  transform-style: preserve-3d;
+  transition: transform ease-in-out 300ms;
+  cursor: pointer;
+}
+
+.quiz-card[data-flipped=true] .quiz-card-inner {
+  transform: rotateX(180deg);
+}
+
+
+.quiz-card .front, .quiz-card .back {
+  backface-visibility: hidden;
+}
+
+.quiz-card .back {
+  transform: rotateX(180deg);
+}

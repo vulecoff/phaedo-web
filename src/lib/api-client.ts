@@ -74,7 +74,7 @@ export class ApiClient {
     }
 
     // TODO: mock statuses & error +  stricter types here
-    mock(timeout: number) {
+    mock(timeout: number = 10) {
         return {
             get: async function (url: string, reqData: Record<any, any>): Promise<any> {
                 const res = await mockServer.handler(url, "GET", reqData);

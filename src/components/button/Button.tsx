@@ -26,7 +26,13 @@ export function Button(props: ButtonProps) {
         <>
             <button type={type || "button"} className={mergedClasses} disabled={disabled} {...rest}>
                 {children}
-                {loading && <Spinner />}
+                {loading && (
+                    <Spinner
+                        variant={variant === "outline-primary" ? "secondary" : "white"}
+                        size="sm"
+                    />
+                    // TODO: systemize variant styles
+                )}
             </button>
         </>
     );

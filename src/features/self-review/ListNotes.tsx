@@ -37,7 +37,6 @@ export function ListNotes() {
             .get(getNote.url, {})
             .then((data) => {
                 data = data as Array<any>;
-                console.log(data);
                 data.sort((a: any, b: any) => {
                     return new Date(b.dateUpdated).getTime() - new Date(a.dateUpdated).getTime();
                 });
@@ -55,8 +54,11 @@ export function ListNotes() {
                 ) : (
                     <>
                         <Link to="/notes/create">
-                            <div className="border border-black border-2 border-dashed p-2 flex justify-center mb-4">
-                                <img src={addIcon} className="size-7" />
+                            <div className="group border border-gray-400 hover:border-black border-2 border-dashed p-2 flex justify-center mb-4">
+                                <img
+                                    src={addIcon}
+                                    className="size-7 filter invert-[0.5] group-hover:filter-none"
+                                />
                             </div>
                         </Link>
                         <div>

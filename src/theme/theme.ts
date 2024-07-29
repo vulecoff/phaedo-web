@@ -18,6 +18,7 @@ export const experimental = {
             bg: "bg-[#007562]",
             hoverBg: "hover:bg-[#007562]",
             border: "border-[#007562]",
+            outline: "outline-[#007562]",
             text: "text-[#007562]",
         },
         zen10: [

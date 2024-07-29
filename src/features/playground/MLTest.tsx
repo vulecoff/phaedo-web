@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "../../components/button/Button.tsx";
-import { extractKeywords, run } from "../../lib/ml.ts";
+import { extractiveSummarize, run } from "../../lib/ml.ts";
 import { pageRank, Tokenizer } from "../../lib/ml-lib.ts";
 
 export function MLTest() {
@@ -22,7 +22,7 @@ export function MLTest() {
     }, []);
 
     async function handleRun() {
-        const { similiarityMatrix, topSentences } = await extractKeywords(text, 5);
+        const { similiarityMatrix, topSentences } = await extractiveSummarize(text, 5);
         console.log(topSentences);
         setSummary(topSentences.map((v) => v[1]).join(" "));
         Plotly.newPlot("chart", [

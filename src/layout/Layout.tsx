@@ -6,6 +6,7 @@ import "../assets/zilla-slab-font.css";
 import { experimental } from "../theme/theme";
 import { useState } from "react";
 import { MLTest } from "../features/playground/MLTest";
+import { QuizReview } from "../features/self-review/QuizReview";
 
 export function Layout() {
     const mediaQuery = matchMedia("(max-width: 640px)");
@@ -19,7 +20,7 @@ export function Layout() {
         "h-full w-[calc(100%-4rem)] sm:w-[calc(100%-12rem)]",
         "data-[sidebarhide=true]:w-[calc(100%-4rem)] sm:data-[sidebarhide=true]:w-[calc(100%-4rem)]",
         "transition-all",
-        "ml-auto overflow-y-scroll p-3",
+        "ml-auto overflow-y-auto p-3",
         "z-0 relative isolate",
     ];
     return (
@@ -32,6 +33,7 @@ export function Layout() {
                     <Route path="/notes/:id/edit" element={<CreateOrEditNote />}></Route>
                     <Route path="/notes/create" element={<CreateOrEditNote />}></Route>
                     <Route path="/playground" element={<MLTest />}></Route>
+                    <Route path="/quiz" element={<QuizReview />}></Route>
                 </Routes>
             </main>
         </div>
