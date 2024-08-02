@@ -1,12 +1,12 @@
 /**
- * Usage:
+ * Usage reminder:
  * 1. Create a MockObject, defining resource url, method, and responseCb, which 'simulates' server behavior
  * - it can either return data immediately or persist data in dummyDB through database interface
  * 2. Register MockObject into MockServer
  * 3. Consume API with apiClient.mock
  */
 
-import { isMatch, method } from "lodash-es";
+import { difference, intersection, isMatch, method } from "lodash-es";
 import { HTTPMethod } from "./api-client";
 
 /**
@@ -38,12 +38,100 @@ export interface TDummyDB {
 // TODO: Implement quick-schema for DB object
 class DummyDB implements TDummyDB {
     private db: IDBDatabase | null;
+
     DB_NAME = "phaedo";
-    TABLES = ["notes", "quiz"];
-    CURRENT_VERSION = 2;
+    CURRENT_VERSION = 3;
+    TABLES = ["notes", "quiz", "tags"];
+    SCHEMA = {
+        // loose schema check
+        notes: {
+            id: "[object Number]",
+            title: "[object String]",
+            contentHtml: "[object String]",
+            dateUpdated: "[object Date]",
+        },
+        quiz: {
+            id: "[object Number]",
+            question: "[object String]",
+            answer: "[object String]",
+            tags: ["[object Number]"],
+        },
+        tags: {
+            id: "[object Number]",
+            label: "[object String]",
+            value: "[object String]",
+        },
+    };
+
+    validateEntriesBySchema() {
+        return Promise.all(
+            Object.entries(this.SCHEMA).map(([table, tableSchema]) =>
+                this.find(table, {}).then((tableEntries) => {
+                    const faultyEntries = [];
+                    for (const entry of tableEntries) {
+                        const entryMissingProps = difference(
+                            Object.keys(tableSchema),
+                            Object.keys(entry)
+                        );
+                        const entryExtraneousProps = difference(
+                            Object.keys(entry),
+                            Object.keys(tableSchema)
+                        );
+                        const mismatchedDatatype = intersection(
+                            Object.keys(entry),
+                            Object.keys(tableSchema)
+                        ).filter(
+                            (property) =>
+                                Object.prototype.toString.call(entry[property]) !==
+                                tableSchema[property as keyof typeof tableSchema]
+                        );
+                        if (
+                            entryMissingProps.length ||
+                            entryExtraneousProps.length ||
+                            mismatchedDatatype.length
+                        ) {
+                            faultyEntries.push({
+                                entryId: entry.id,
+                                entryMissingProps,
+                                entryExtraneousProps,
+                                mismatchedDatatype,
+                            });
+                        }
+                    }
+                    return faultyEntries;
+                })
+            )
+        ).then((invalidates) => {
+            console.assert(invalidates.length === this.TABLES.length);
+            console.error(
+                this.TABLES.map((table, idx) => ({
+                    table,
+                    invalids: invalidates[idx],
+                })).filter((i) => i.invalids.length > 0)
+            );
+        });
+    }
 
     constructor() {
         this.db = null;
+    }
+
+    async migrateScripts() {
+        // TODO: migration workflows??
+        // adding default tags to quizzes
+        const VER = 3;
+        if (VER !== this.CURRENT_VERSION) {
+            console.log("NOT RUNNING MIGRATION SCRIPT.");
+            return;
+        }
+        console.log("RUNNING MIGRATION SCRIPT: ", "reset default tags array for quizzes");
+        const quizzes = await this.find("quiz", {});
+        for (const q of quizzes) {
+            const newQ = { ...q, tags: [] };
+            this.update("quiz", { id: q.id }, newQ)
+                .then((d) => console.log(d))
+                .catch((err) => console.error(err));
+        }
     }
 
     /**
@@ -99,7 +187,7 @@ class DummyDB implements TDummyDB {
     find(table: string, query: Record<any, any>): Promise<Array<any>> {
         return new Promise((resolve, reject) => {
             if (!this.tableExists(table)) {
-                return reject(new Error(`${table} does not exist.`));
+                return reject(new Error(`Table ${table} does not exist.`));
             }
             const requestAllRows = this.db!.transaction(table).objectStore(table).getAll();
             requestAllRows.onsuccess = (e) => {
@@ -225,7 +313,16 @@ export const mockServer = {
     db: new DummyDB(),
     mockObjects: new Array<MockAPIObject<any, any>>(),
 
+    validateEntriesSchemaAndMigrate: async function () {
+        await this.db.initialize();
+        await this.db.validateEntriesBySchema();
+        await this.db.migrateScripts();
+    },
     registerMockObject: function (obj: MockAPIObject<any, any>) {
+        if (this.mockObjects.includes(obj)) {
+            // already added mock object
+            return;
+        }
         if (this.findResource(obj.url, obj.method)) {
             throw new Error(
                 `MOCK SERVER: Resource already exists for URL ${obj.url} and METHOD: ${method}`

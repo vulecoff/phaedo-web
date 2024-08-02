@@ -1,5 +1,7 @@
-import { sample } from "lodash-es";
+import { differenceWith, every, intersection, sample, sampleSize } from "lodash-es";
 import { MockAPIObject, TDummyDB } from "../../lib/mock-server";
+import { Quiz } from "./models";
+import { Tag } from "../shared/tagModel";
 
 // TODO: STRICTER TYPINGS
 export const createNote: MockAPIObject<any, any> = {
@@ -42,21 +44,89 @@ export const createQuizCard: MockAPIObject<any, any> = {
         return db.insert("quiz", reqData);
     },
 };
-export const getQuizCard: MockAPIObject<any, any> = {
-    url: "/quiz",
+
+const cleanQuizEntry = function (quiz: any, allTags: Array<Tag>, db: TDummyDB) {
+    const inconsitencies = differenceWith(quiz.tags, allTags, (a, b) => a === b.id);
+    if (inconsitencies.length) {
+        const err = new Error(
+            `Inconsistencies: Quiz has tags that is not in database. \n 
+            Quiz: ${JSON.stringify(quiz)}. \n
+            DiffTags: ${JSON.stringify(inconsitencies)}`
+        );
+        console.error(err);
+        console.warn("Attempting to clean data asynchronously... Please reload after operation.");
+        db.update(
+            "quiz",
+            { id: quiz.id },
+            {
+                ...quiz,
+                tags: quiz.tags.filter((t: number) => !inconsitencies.includes(t)),
+            }
+        );
+        throw err;
+    }
+};
+export const getQuizCards: MockAPIObject<any, any> = {
+    url: "/quiz/",
+    method: "GET",
+    responseCb: (reqData, db: TDummyDB): Promise<Array<Quiz>> => {
+        return Promise.all([db.find("quiz", reqData), db.find("tags", {})]).then(
+            ([quizzes, tags]) => {
+                return quizzes
+                    .map((q) => {
+                        const allTags = tags as Array<Tag>;
+                        cleanQuizEntry(q, allTags, db);
+                        q.tags = q.tags.map((id: number) => allTags.find((t) => t.id === id));
+                        return q;
+                    })
+                    .filter((q: Quiz) => {
+                        const tagsFilter = reqData.tagsFilter as Array<string>;
+                        if (!tagsFilter || !tagsFilter.length) {
+                            return true;
+                        }
+
+                        const intersects = intersection(
+                            q.tags.map((t) => t.value),
+                            tagsFilter
+                        );
+                        return intersects.length > 0 && intersects.length === tagsFilter.length;
+                    });
+            }
+        );
+    },
+};
+export const getRandomQuizCards: MockAPIObject<any, any> = {
+    url: "/quiz/random",
     method: "GET",
     responseCb: (reqData: any, db: TDummyDB): Promise<any> => {
-        return db.find("quiz", reqData).then((all) => {
-            if (!all.length) {
-                return [];
+        return Promise.all([db.find("quiz", reqData), db.find("tags", {})]).then(
+            ([quizzes, tags]) => {
+                const joinedQuizTag = quizzes
+                    .map((q) => {
+                        const allTags = tags as Array<Tag>;
+                        cleanQuizEntry(q, allTags, db);
+                        q.tags = q.tags.map((id: number) => allTags.find((t) => t.id === id));
+                        return q;
+                    })
+                    .filter((q: Quiz) => {
+                        const tagsFilter = reqData.tagsFilter as Array<string>;
+                        if (!tagsFilter || !tagsFilter.length) {
+                            return true;
+                        }
+                        const intersects = intersection(
+                            q.tags.map((t) => t.value),
+                            tagsFilter
+                        );
+                        return intersects.length > 0 && intersects.length === tagsFilter.length;
+                    });
+
+                if (!joinedQuizTag.length) {
+                    return [];
+                }
+                const BATCH_SIZE = 5;
+                return sampleSize(joinedQuizTag, BATCH_SIZE);
             }
-            const BATCH_SIZE = 5;
-            const randomBatch = [];
-            for (let i = 0; i < BATCH_SIZE; i++) {
-                randomBatch.push(sample(all));
-            }
-            return randomBatch;
-        });
+        );
     },
 };
 export const deleteQuizCard: MockAPIObject<any, any> = {

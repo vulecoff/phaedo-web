@@ -5,8 +5,9 @@ import { CreateOrEditNote } from "../features/self-review/CreateOrEditNote";
 import "../assets/zilla-slab-font.css";
 import { experimental } from "../theme/theme";
 import { useState } from "react";
-import { MLTest } from "../features/playground/MLTest";
+import { Playground } from "../features/playground/Playground";
 import { QuizReview } from "../features/self-review/QuizReview";
+import { TagsManager } from "../features/tags-management/TagsManager";
 
 export function Layout() {
     const mediaQuery = matchMedia("(max-width: 640px)");
@@ -32,8 +33,9 @@ export function Layout() {
                     <Route path="/notes" element={<ListNotes />}></Route>
                     <Route path="/notes/:id/edit" element={<CreateOrEditNote />}></Route>
                     <Route path="/notes/create" element={<CreateOrEditNote />}></Route>
-                    <Route path="/playground" element={<MLTest />}></Route>
+                    <Route path="/playground" element={<Playground />}></Route>
                     <Route path="/quiz" element={<QuizReview />}></Route>
+                    <Route path="/tags" element={<TagsManager />}></Route>
                 </Routes>
             </main>
         </div>

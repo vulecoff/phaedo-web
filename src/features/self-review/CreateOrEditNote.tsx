@@ -83,7 +83,6 @@ export function CreateOrEditNote() {
                 })
                 .then((res) => {
                     setSaveLoading(false);
-                    console.log("update response: ", res);
                 })
                 .catch((err) => console.log(err));
         }

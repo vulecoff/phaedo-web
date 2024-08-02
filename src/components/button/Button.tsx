@@ -11,7 +11,7 @@ export type ButtonProps = {
     variant?: ColorVariant;
 } & React.ComponentProps<"button">;
 
-// TODO: create custom size & variants
+// TODO: create custom size & variants. Systematic way of passing down styles to custom component??
 export function Button(props: ButtonProps) {
     const { children, className, disabled, loading, type, variant, ...rest } = props;
     const defaultClassNames = [

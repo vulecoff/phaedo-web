@@ -29,6 +29,7 @@ export function SideBar(props: {
         ["Home", "/"],
         ["Notes", "/notes"],
         ["Quick Review", "/quiz"],
+        ["Tags Manager", "/tags"],
         ["Playground", "/playground"],
     ];
     return (
@@ -59,7 +60,7 @@ export function SideBar(props: {
                     ))}
                 </nav>
             </div>
-            <div
+            <div // Overlay
                 data-show={!sideBarHide}
                 className="hidden data-[show=true]:block sm:data-[show=true]:hidden fixed w-full h-full top-0 left-0 z-10 bg-black opacity-50"
                 onClick={() => {
